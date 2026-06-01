@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Year 7 Science — Practice Questions</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117;
+    --surface: #181d27;
+    --card: #1e2535;
+    --border: #2a3245;
+    --accent: #4f9cf9;
+    --accent2: #7ee8a2;
+    --accent3: #f9a84f;
+    --accent4: #f96f6f;
+    --text: #e8edf5;
+    --muted: #8892a4;
+    --correct: #7ee8a2;
+    --wrong: #f96f6f;
+    --neutral: #4f9cf9;
+    --topic-bio: #a78bfa;
+    --topic-chem: #f9a84f;
+    --topic-phys: #4f9cf9;
+    --topic-eco: #7ee8a2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #111827 0%, #1a2340 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #4f9cf9, #7ee8a2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p { color: var(--muted); font-size: 0.9rem; }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar-wrap {
+    background: var(--border);
+    border-radius: 4px;
+    height: 6px;
+    margin-top: 12px;
+    overflow: hidden;
+  }
+  #progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  #progress-text {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  /* ── TOPIC NAV ── */
+  #topic-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px 32px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .topic-btn {
+    padding: 7px 16px;
+    border-radius: 30px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .topic-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .topic-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .topic-btn[data-topic="Biology"].active { background: var(--topic-bio); border-color: var(--topic-bio); }
+  .topic-btn[data-topic="Chemistry"].active { background: var(--topic-chem); border-color: var(--topic-chem); color: #111; }
+  .topic-btn[data-topic="Physics"].active { background: var(--topic-phys); border-color: var(--topic-phys); }
+  .topic-btn[data-topic="Ecology"].active { background: var(--topic-eco); border-color: var(--topic-eco); color: #111; }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* ── SECTION HEADING ── */
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+  }
+  .bio-label { background: rgba(167,139,250,0.12); color: var(--topic-bio); }
+  .chem-label { background: rgba(249,168,79,0.12); color: var(--topic-chem); }
+  .phys-label { background: rgba(79,156,249,0.12); color: var(--topic-phys); }
+  .eco-label { background: rgba(126,232,162,0.12); color: var(--topic-eco); }
+
+  /* ── QUESTION GROUP ── */
+  .question-group {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: opacity 0.3s;
+  }
+  .question-group.hidden { display: none; }
+
+  .group-header {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .q-number {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .bio-num { background: rgba(167,139,250,0.15); color: var(--topic-bio); }
+  .chem-num { background: rgba(249,168,79,0.15); color: var(--topic-chem); }
+  .phys-num { background: rgba(79,156,249,0.15); color: var(--topic-phys); }
+  .eco-num { background: rgba(126,232,162,0.15); color: var(--topic-eco); }
+
+  .group-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .group-header p {
+    font-size: 0.83rem;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  /* ── INDIVIDUAL QUESTION ── */
+  .question-item {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .question-item:last-child { border-bottom: none; }
+
+  .q-stem {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .marks-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1px 8px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* MCQ */
+  .mcq-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .mcq-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: all 0.18s;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: transparent;
+    text-align: left;
+  }
+  .mcq-option:hover:not(.locked) { border-color: var(--accent); background: rgba(79,156,249,0.06); }
+  .mcq-option .opt-circle {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: all 0.18s;
+  }
+  .mcq-option.selected .opt-circle { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .mcq-option.correct-chosen { border-color: var(--correct) !important; background: rgba(126,232,162,0.08) !important; }
+  .mcq-option.correct-chosen .opt-circle { border-color: var(--correct) !important; background: var(--correct) !important; color: #111 !important; }
+  .mcq-option.wrong-chosen { border-color: var(--wrong) !important; background: rgba(249,111,111,0.08) !important; }
+  .mcq-option.wrong-chosen .opt-circle { border-color: var(--wrong) !important; background: var(--wrong) !important; color: #fff !important; }
+  .mcq-option.reveal-correct { border-color: var(--correct) !important; opacity: 0.7; }
+  .mcq-option.reveal-correct .opt-circle { border-color: var(--correct) !important; }
+  .mcq-option.locked { cursor: default; }
+
+  /* Short answer */
+  .short-answer textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 12px 14px;
+    resize: vertical;
+    min-height: 70px;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+  .short-answer textarea:focus { outline: none; border-color: var(--accent); }
+
+  /* Numeric */
+  .numeric-input input {
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    padding: 10px 14px;
+    width: 200px;
+    transition: border-color 0.2s;
+  }
+  .numeric-input input:focus { outline: none; border-color: var(--accent); }
+  .numeric-input .unit { color: var(--muted); font-size: 0.85rem; margin-left: 8px; }
+
+  /* Check button */
+  .check-btn {
+    margin-top: 12px;
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .check-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    display: none;
+  }
+  .feedback.correct-fb {
+    background: rgba(126,232,162,0.08);
+    border: 1px solid rgba(126,232,162,0.2);
+    color: var(--correct);
+    display: block;
+  }
+  .feedback.wrong-fb {
+    background: rgba(249,111,111,0.08);
+    border: 1px solid rgba(249,111,111,0.2);
+    color: #fca5a5;
+    display: block;
+  }
+  .feedback .model-answer {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.85rem;
+  }
+  .feedback .model-answer strong { color: var(--accent2); font-weight: 600; }
+  .fb-icon { font-size: 1rem; }
+
+  /* Score Panel */
+  #score-panel {
+    background: linear-gradient(135deg, #1a2a40, #1e2535);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+  #score-panel h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+  #score-display {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  #score-message { color: var(--muted); font-size: 0.95rem; }
+  .reset-btn {
+    margin-top: 8px;
+    padding: 10px 28px;
+    border-radius: 8px;
+    border: 1.5px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { background: var(--accent); color: #fff; }
+
+  /* Floating score */
+  #floating-score {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #floating-score .score-val { color: var(--accent2); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    header, #topic-nav { padding: 16px; }
+    main { padding: 20px 12px 80px; }
+    .group-header, .question-item { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚗️ Year 7 Science — Practice Questions</h1>
+  <p>3 practice questions for each topic on your End of Year Assessment. Answer, then check your work!</p>
+  <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+  <div id="progress-text">0 of 0 answered</div>
+</header>
+
+<div id="topic-nav">
+  <button class="topic-btn active" data-topic="All" onclick="filterTopic('All',this)">All Topics</button>
+  <button class="topic-btn" data-topic="Biology" onclick="filterTopic('Biology',this)">🔬 Biology</button>
+  <button class="topic-btn" data-topic="Chemistry" onclick="filterTopic('Chemistry',this)">⚗️ Chemistry</button>
+  <button class="topic-btn" data-topic="Physics" onclick="filterTopic('Physics',this)">⚡ Physics</button>
+  <button class="topic-btn" data-topic="Ecology" onclick="filterTopic('Ecology',this)">🌿 Ecology</button>
+</div>
+
+<main id="main-content">
+  <!-- Groups injected by JS -->
+</main>
+
+<div id="floating-score">Score: <span class="score-val" id="fs-correct">0</span> / <span id="fs-total">0</span></div>
+
+<script>
+// ─────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────
+const groups = [
+  // ── BIOLOGY: Cells ──
+  {
+    id: 'bio-cells',
+    topic: 'Biology',
+    title: 'Cells',
+    subtitle: 'Similar to: labelling a cell diagram & identifying plant/animal cell parts',
+    questions: [
+      {
+        type: 'mcq',
+        stem: 'Which of the following structures is found in a plant cell but NOT in an animal cell? <span class="marks-badge">1 mark</span>',
+        options: ['Cell membrane', 'Nucleus', 'Chloroplast', 'Cytoplasm'],
+        answer: 2,
+        feedback: 'Chloroplasts are only found in plant cells. They contain chlorophyll and are the site of photosynthesis.',
+      },
+      {
+        type: 'mcq',
+        stem: 'A student looks at a cell under a microscope and sees a large central vacuole and a rigid cell wall. What type of cell is this? <span class="marks-badge">1 mark</span>',
+        options: ['A nerve cell', 'A muscle cell', 'A plant cell', 'A red blood cell'],
+        answer: 2,
+        feedback: 'A large central vacuole and a cell wall made of cellulose are characteristic features of plant cells.',
+      },
+      {
+        type: 'short',
+        stem: 'Name TWO structures found in both animal and plant cells. <span class="marks-badge">2 marks</span>',
+        answer: 'Any two of: cell membrane, nucleus, cytoplasm, mitochondria, ribosomes.',
+        feedback: 'Both animal and plant cells share: cell membrane, nucleus, cytoplasm, mitochondria, and ribosomes. The differences are chloroplasts, cell wall, and large permanent vacuole — found only in plant cells.',
+      },
+    ]
+  },
+  // ── BIOLOGY: Tissues & Organisation ──
+  {
+    id: 'bio-tissues',
+    topic: 'Biology',
+    title: 'Cells, Tissues & Organisation',
+    subtitle: 'Similar to: naming a group of similar cells working together',
+    questions: [
+      {
+        type: 'mcq',
+        stem: 'A group of similar cells working together to perform the same function is called a… <span class="marks-badge">1 mark</span>',
+        options: ['Organ', 'Organism', 'Tissue', 'Organ system'],
+        answer: 2,
+        feedback: 'A tissue is a group of similar cells working together. Tissues make up organs, organs make up organ systems, and organ systems make up an organism.',
+      },
+      {
+        type: 'mcq',
+        stem: 'Which is the correct order of organisation from smallest to largest? <span class="marks-badge">1 mark</span>',
+        options: [
+          'Organ → Tissue → Cell → Organism',
+          'Cell → Tissue → Organ → Organism',
+          'Tissue → Cell → Organ → Organism',
+          'Cell → Organ → Tissue → Organism'
+        ],
+        answer: 1,
+        feedback: 'The correct order is: Cell → Tissue → Organ → Organ system → Organism.',
+      },
+      {
+        type: 'short',
+        stem: 'The heart is an example of an organ. What is an organ, and give one other example of an organ in the human body. <span class="marks-badge">2 marks</span>',
+        answer: 'An organ is a structure made of different types of tissue working together to carry out a specific function. Examples: brain, lungs, liver, stomach, kidneys.',
+        feedback: 'An organ is made of two or more types of tissue. Examples include the brain, lungs, liver, stomach, or kidneys.',
+      },
+    ]
+  },
+  // ── BIOLOGY: Muscles & Skeleton ──
+  {
+    id: 'bio-muscles',
+    topic: 'Biology',
+    title: 'Muscles & Skeleton',
+    subtitle: 'Similar to: antagonistic muscle pairs and bending the arm',
+    questions: [
+      {
+        type: 'mcq',
+        stem: 'When you bend your arm at the elbow, which muscle contracts? <span class="marks-badge">1 mark</span>',
+        options: ['The triceps', 'The biceps', 'Both the biceps and triceps equally', 'Neither — tendons pull the arm'],
+        answer: 1,
+        feedback: 'The biceps (on the front of the upper arm) contracts to bend (flex) the arm at the elbow. The triceps relaxes at the same time.',
+      },
+      {
+        type: 'mcq',
+        stem: 'When you straighten your arm at the elbow, which muscle is contracting? <span class="marks-badge">1 mark</span>',
+        options: ['Biceps', 'Triceps', 'Both contract together', 'The tendon shortens'],
+        answer: 1,
+        feedback: 'The triceps (on the back of the upper arm) contracts to extend (straighten) the arm. The biceps relaxes.',
+      },
+      {
+        type: 'short',
+        stem: 'Explain what is meant by the term "antagonistic muscle pair". Give one example. <span class="marks-badge">2 marks</span>',
+        answer: 'Antagonistic means the two muscles work against each other — when one contracts the other relaxes. Example: biceps and triceps in the upper arm.',
+        feedback: 'Antagonistic pairs: one muscle contracts (gets shorter/pulls) while the other relaxes. They then swap roles for the opposite movement. Biceps/triceps is the classic example.',
+      },
+    ]
+  },
+  // ── CHEMISTRY: Particle Model ──
+  {
+    id: 'chem-particles',
+    topic: 'Chemistry',
+    title: 'Particle Model & States of Matter',
+    subtitle: 'Similar to: drawing particle arrangements and describing state changes',
+    questions: [
+      {
+        type: 'mcq',
+        stem: 'Which description best matches the arrangement of particles in a liquid? <span class="marks-badge">1 mark</span>',
+        options: [
+          'Particles very far apart, moving randomly and fast',
+          'Particles tightly packed in a regular pattern, vibrating in place',
+          'Particles close together but able to move around each other',
+          'Particles in small clusters that drift slowly'
+        ],
+        answer: 2,
+        feedback: 'In a liquid, particles are close together but can flow past each other. This is why liquids take the shape of their container but have a fixed volume.',
+      },
+      {
+        type: 'mcq',
+        stem: 'What happens to the energy of particles when a substance melts? <span class="marks-badge">1 mark</span>',
+        options: [
+          'Particles lose energy and slow down',
+          'Particles gain energy and can overcome some forces between them',
+          'Particle energy stays exactly the same',
+          'Particles split into smaller particles'
+        ],
+        answer: 1,
+        feedback: 'When melting, particles absorb thermal energy. This extra energy allows them to break free from their fixed positions while still staying relatively close together.',
+      },
+      {
+        type: 'short',
+        stem: 'Explain what happens to the particles in water when it boils and turns into steam. Include what happens to the energy and the arrangement of particles. <span class="marks-badge">2 marks</span>',
+        answer: 'The particles gain energy. They move faster and overcome the forces holding them together, spreading far apart and moving randomly. The particles are now much further apart than in the liquid.',
+        feedback: 'Key points: particles gain kinetic energy → forces between particles are overcome → particles spread out and move rapidly and randomly in all directions. Volume increases greatly.',
+      },
+    ]
+  },
+  // ── CHEMISTRY: Acids, Alkalis & pH ──
+  {
+    id: 'chem-acids',
+    topic: 'Chemistry',
+    title: 'Acids, Alkalis & pH',
+    subtitle: 'Similar to: universal indicator colours and pH values',
+    questions: [
+      {
+        type: 'mcq',
+        stem: 'What colour does universal indicator turn in a strongly acidic solution (pH 1–2)? <span class="marks-badge">1 mark</span>',
+        options: ['Purple', 'Green', 'Red', 'Blue'],
+        answer: 2,
+        feedback: 'Universal indicator turns red in strongly acidic solutions (pH 1–2). Orange = weakly acidic, green = neutral, blue/purple = alkaline.',
+      },
+      {
+        type: 'mcq',
+        stem: 'A solution has a pH of 11. Which of the following is most likely? <span class="marks-badge">1 mark</span>',
+        options: ['Lemon juice', 'Pure water', 'Vinegar', 'Bleach/oven cleaner'],
+        answer: 3,
+        feedback: 'pH 11 is strongly alkaline. Bleach and oven cleaners are strongly alkaline. Lemon juice (~pH 2) and vinegar (~pH 3) are acidic. Pure water is pH 7 (neutral).',
+      },
+      {
+        type: 'short',
+        stem: 'A student tests four household liquids with universal indicator and records these colours: red, orange, green, blue. Place these in order of pH from lowest to highest and state whether each is acidic, neutral, or alkaline. <span class="marks-badge">2 marks</span>',
+        answer: 'Red (lowest pH, strongly acidic) → Orange (weakly acidic) → Green (neutral, pH 7) → Blue (alkaline, higher pH).',
+        feedback: 'Red = strongly acidic (pH ~1–3), Orange = weakly acidic (pH ~4–6), Green = neutral (pH 7), Blue/Purple = alkaline (pH 8–14).',
+      },
+    ]
+  },
+  // ── CHEMISTRY: Neutralisation experiment ──
+  {
+    id: 'chem-experiment',
+    topic: 'Chemistry',
+    title: 'Fair Testing & Scientific Method',
+    subtitle: 'Similar to: the indigestion tablet neutralisation experiment',
+    questions: [
+      {
+        type: 'mcq',
+        stem: 'In an experiment comparing two indigestion tablets, a student keeps the concentration and volume of acid the same each time. What type of variable is this? <span class="marks-badge">1 mark</span>',
+        options: ['Independent variable', 'Dependent variable', 'Control variable', 'Random variable'],
+        answer: 2,
+        feedback: 'Control variables are kept the same throughout an experiment to make it a fair test. The thing you change is the independent variable; what you measure is the dependent variable.',
+      },
+      {
+        type: 'mcq',
+        stem: 'A student repeats an experiment three times and gets results of 12, 11, and 13 drops. What should they do to get the best single value to report? <span class="marks-badge">1 mark</span>',
+        options: [
+          'Use the first result only',
+          'Calculate the mean (average) of the three results',
+          'Use the largest result',
+          'Ignore the middle result'
+        ],
+        answer: 1,
+        feedback: 'Repeating and calculating the mean (average) improves reliability. It reduces the effect of random errors. Mean = (12 + 11 + 13) ÷ 3 = 12 drops.',
+      },
+      {
+        type: 'short',
+        stem: 'A student wants to test whether temperature affects how quickly an antacid tablet dissolves. State the independent variable, the dependent variable, and one control variable for this experiment. <span class="marks-badge">3 marks</span>',
+        answer: 'Independent variable: temperature of the water. Dependent variable: time taken for the tablet to dissolve. Control variable: any one of — volume of water, brand/size of tablet, amount of stirring.',
+        feedback: 'Independent = what you change (temperature). Dependent = what you measure (time to dissolve). Control = everything kept the same (volume of water, tablet brand, stirring).',
+      },
+    ]
+  },
+  // ── ECOLOGY: Food Webs ──
+  {
+    id: 'eco-foodweb',
+    topic: 'Ecology',
+    title: 'Food Webs & Energy',
+    subtitle: 'Similar to: primary/secondary consumers and energy source questions',
+    questions: [
+      {
+        type: 'mcq',
+        stem: 'In a food web: Grass → Rabbit → Fox, what is the rabbit? <span class="marks-badge">1 mark</span>',
+        options: ['A producer', 'A primary consumer', 'A secondary consumer', 'A decomposer'],
+        answer: 1,
+        feedback: 'The rabbit eats grass (a producer), so it is a primary consumer (first level consumer). The fox eats the rabbit, making it a secondary consumer.',
+      },
+      {
+        type: 'mcq',
+        stem: 'All food webs ultimately get their energy from the same source. What is this source? <span class="marks-badge">1 mark</span>',
+        options: ['Soil nutrients', 'The Sun', 'Water', 'Decomposers'],
+        answer: 1,
+        feedback: 'The Sun is the ultimate energy source for all food webs. Plants (producers) capture solar energy through photosynthesis and pass it through the food web.',
+      },
+      {
+        type: 'short',
+        stem: 'In a food web, rabbits and mice both eat grass. If all the rabbits died from a disease, predict what would happen to the mouse population. Give a reason. <span class="marks-badge">2 marks</span>',
+        answer: 'The mouse population would increase because there is now less competition for grass (food). With more food available, more mice can survive and reproduce.',
+        feedback: 'With rabbits gone, mice have less competition for grass. More food → population increases. Also, predators might eat more mice (or fewer, depending on the web), so the full impact depends on the specific food web.',
+      },
+    ]
+  },
+  // ── PHYSICS: Forces ──
+  {
+    id: 'phys-forces',
+    topic: 'Physics',
+    title: 'Forces & Resultant Forces',
+    subtitle: 'Similar to: the tug of war resultant force question',
+    questions: [
+      {
+        type: 'mcq',
+        stem: 'Team A pulls with 400 N and Team B pulls with 350 N in the opposite direction. What is the resultant force, and which team wins? <span class="marks-badge">2 marks</span>',
+        options: [
+          '50 N towards Team A — Team A wins',
+          '750 N towards Team A — Team A wins',
+          '50 N towards Team B — Team B wins',
+          '0 N — it is a draw'
+        ],
+        answer: 0,
+        feedback: 'Resultant force = 400 N − 350 N = 50 N towards Team A. Team A wins because the net force is in their direction.',
+      },
+      {
+        type: 'mcq',
+        stem: 'A box is pushed right with 60 N and has a friction force of 60 N acting left. What is the resultant force on the box? <span class="marks-badge">1 mark</span>',
+        options: ['120 N to the right', '60 N to the right', '0 N', '60 N to the left'],
+        answer: 2,
+        feedback: '0 N — the forces are balanced (equal and opposite). The box will not accelerate; if it was already moving it would continue at constant speed.',
+      },
+      {
+        type: 'numeric',
+        stem: 'Three people push a car to the right: 200 N, 150 N and 100 N. One person pushes left with 80 N. Calculate the resultant force in Newtons. <span class="marks-badge">2 marks</span>',
+        unit: 'N to the right',
+        answer: 370,
+        tolerance: 5,
+        feedback: 'Total right = 200 + 150 + 100 = 450 N. Total left = 80 N. Resultant = 450 − 80 = 370 N to the right.',
+      },
+    ]
+  },
+  // ── PHYSICS: Pressure ──
+  {
+    id: 'phys-pressure',
+    topic: 'Physics',
+    title: 'Weight & Pressure',
+    subtitle: 'Similar to: calculating weight and pressure (P = F/A)',
+    questions: [
+      {
+        type: 'numeric',
+        stem: 'A bag of sand has a mass of 50 kg. Calculate its weight. (g = 10 N/kg) <span class="marks-badge">1 mark</span>',
+        unit: 'N',
+        answer: 500,
+        tolerance: 1,
+        feedback: 'Weight = mass × gravitational field strength = 50 kg × 10 N/kg = 500 N.',
+      },
+      {
+        type: 'numeric',
+        stem: 'A force of 600 N acts over an area of 0.3 m². Calculate the pressure. (Pressure = Force ÷ Area) <span class="marks-badge">2 marks</span>',
+        unit: 'Pa (N/m²)',
+        answer: 2000,
+        tolerance: 10,
+        feedback: 'Pressure = Force ÷ Area = 600 N ÷ 0.3 m² = 2000 Pa (Pascals).',
+      },
+      {
+        type: 'short',
+        stem: 'A woman stands on a wooden floor. Explain why wearing high heels causes more pressure on the floor than wearing flat shoes, even though the woman weighs the same. <span class="marks-badge">2 marks</span>',
+        answer: 'The contact area of a high heel is much smaller than a flat shoe. Since Pressure = Force ÷ Area, a smaller area means a larger pressure for the same weight (force).',
+        feedback: 'Key points: same weight (force) but much smaller area in contact with the ground → pressure increases. P = F/A; if A decreases and F stays the same, P increases.',
+      },
+    ]
+  },
+];
+
+// ─────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────
+let totalQ = 0;
+let answeredQ = 0;
+let correctQ = 0;
+
+const topicColors = {
+  Biology: 'bio',
+  Chemistry: 'chem',
+  Physics: 'phys',
+  Ecology: 'eco',
+};
+
+function render() {
+  const main = document.getElementById('main-content');
+  main.innerHTML = '';
+
+  groups.forEach((group, gi) => {
+    const col = topicColors[group.topic];
+    const div = document.createElement('div');
+    div.className = 'question-group';
+    div.dataset.topic = group.topic;
+
+    let qs = '';
+    group.questions.forEach((q, qi) => {
+      const qid = `q-${gi}-${qi}`;
+      qs += renderQuestion(q, qid);
+      totalQ++;
+    });
+
+    div.innerHTML = `
+      <div class="group-header">
+        <div class="q-number ${col}-num">${gi + 1}</div>
+        <div>
+          <span class="section-label ${col}-label">${group.topic}</span>
+          <h3>${group.title}</h3>
+          <p>${group.subtitle}</p>
+        </div>
+      </div>
+      ${qs}
+    `;
+    main.appendChild(div);
+  });
+
+  updateProgress();
+  document.getElementById('fs-total').textContent = totalQ;
+}
+
+function renderQuestion(q, qid) {
+  let inputHtml = '';
+  if (q.type === 'mcq') {
+    let opts = q.options.map((o, i) =>
+      `<button class="mcq-option" data-qi="${qid}" data-idx="${i}" onclick="selectMCQ('${qid}',${i})">
+        <span class="opt-circle">${String.fromCharCode(65+i)}</span> ${o}
+      </button>`
+    ).join('');
+    inputHtml = `<div class="mcq-options" id="${qid}-opts">${opts}</div>`;
+  } else if (q.type === 'short') {
+    inputHtml = `<div class="short-answer"><textarea id="${qid}-ta" placeholder="Write your answer here…" rows="3"></textarea></div>`;
+  } else if (q.type === 'numeric') {
+    inputHtml = `<div class="numeric-input"><input type="number" id="${qid}-num" placeholder="Your answer…" step="any"><span class="unit">${q.unit}</span></div>`;
+  }
+
+  const btnLabel = q.type === 'short' ? '✓ Show Model Answer' : '✓ Check Answer';
+
+  return `
+    <div class="question-item" id="${qid}">
+      <p class="q-stem">${q.stem}</p>
+      ${inputHtml}
+      <button class="check-btn" id="${qid}-btn" onclick="checkAnswer('${qid}')">
+        ${btnLabel}
+      </button>
+      <div class="feedback" id="${qid}-fb"></div>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────
+// INTERACTIONS
+// ─────────────────────────────────────────
+const state = {}; // qid -> {selected, answered}
+
+function selectMCQ(qid, idx) {
+  if (state[qid] && state[qid].answered) return;
+  // deselect all
+  document.querySelectorAll(`[data-qi="${qid}"]`).forEach(el => el.classList.remove('selected'));
+  document.querySelector(`[data-qi="${qid}"][data-idx="${idx}"]`).classList.add('selected');
+  if (!state[qid]) state[qid] = {};
+  state[qid].selected = idx;
+}
+
+function checkAnswer(qid) {
+  if (state[qid] && state[qid].answered) return;
+
+  // Find group/question
+  let q, found = false;
+  groups.forEach((g, gi) => {
+    g.questions.forEach((question, qi) => {
+      if (`q-${gi}-${qi}` === qid) { q = question; found = true; }
+    });
+  });
+  if (!found) return;
+
+  const fb = document.getElementById(`${qid}-fb`);
+  const btn = document.getElementById(`${qid}-btn`);
+  btn.disabled = true;
+
+  if (!state[qid]) state[qid] = {};
+  state[qid].answered = true;
+  answeredQ++;
+
+  if (q.type === 'mcq') {
+    const sel = state[qid].selected;
+    if (sel === undefined) { btn.disabled = false; state[qid].answered = false; answeredQ--; return; }
+
+    const opts = document.querySelectorAll(`[data-qi="${qid}"]`);
+    opts.forEach(el => el.classList.add('locked'));
+
+    const isCorrect = sel === q.answer;
+    opts[sel].classList.remove('selected');
+    opts[sel].classList.add(isCorrect ? 'correct-chosen' : 'wrong-chosen');
+    if (!isCorrect) opts[q.answer].classList.add('reveal-correct');
+
+    if (isCorrect) { correctQ++; showFeedback(fb, true, q.feedback); }
+    else { showFeedback(fb, false, q.feedback); }
+
+  } else if (q.type === 'short') {
+    correctQ++;
+    showFeedback(fb, null, q.feedback, q.answer);
+
+  } else if (q.type === 'numeric') {
+    const val = parseFloat(document.getElementById(`${qid}-num`).value);
+    if (isNaN(val)) { btn.disabled = false; state[qid].answered = false; answeredQ--; return; }
+    const tol = q.tolerance || 0;
+    const isCorrect = Math.abs(val - q.answer) <= tol;
+    if (isCorrect) { correctQ++; showFeedback(fb, true, q.feedback); }
+    else { showFeedback(fb, false, q.feedback, `Correct answer: ${q.answer} ${q.unit}`); }
+  }
+
+  updateProgress();
+}
+
+function showFeedback(el, correct, text, modelAnswer) {
+  if (correct === null) {
+    // self-mark
+    el.className = 'feedback correct-fb';
+    el.innerHTML = `<span class="fb-icon">📋</span> <strong>Model Answer:</strong>
+      <div class="model-answer"><strong>Mark scheme:</strong> ${modelAnswer || text}<br><br><em>${text}</em></div>`;
+  } else if (correct) {
+    el.className = 'feedback correct-fb';
+    el.innerHTML = `<span class="fb-icon">✅</span> <strong>Correct!</strong><div class="model-answer">${text}</div>`;
+  } else {
+    el.className = 'feedback wrong-fb';
+    const ma = modelAnswer ? `<div class="model-answer"><strong>Correct answer:</strong> ${modelAnswer}<br><br>${text}</div>` : `<div class="model-answer">${text}</div>`;
+    el.innerHTML = `<span class="fb-icon">❌</span> <strong>Not quite.</strong>${ma}`;
+  }
+}
+
+function updateProgress() {
+  const pct = totalQ > 0 ? (answeredQ / totalQ) * 100 : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${answeredQ} of ${totalQ} answered`;
+  document.getElementById('fs-correct').textContent = correctQ;
+}
+
+function filterTopic(topic, btn) {
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.question-group').forEach(g => {
+    g.classList.toggle('hidden', topic !== 'All' && g.dataset.topic !== topic);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
